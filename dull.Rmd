@@ -58,7 +58,7 @@ crosstalk::filter_select(
 ```
 
 ```{js}
-<!-- This javascript code removes the (All) option from the filter_selects... for each filter you add, need to do the same. -->
+<!-- This javascript code removes the (All) option from the filter_selects... do the same for all your filters -->
 function remove_all_option() {
     document.getElementById("mtcars_am").getElementsByClassName("selectized")[0].selectize.removeOption("");
     document.getElementById("mtcars_cyl").getElementsByClassName("selectized")[0].selectize.removeOption("");
