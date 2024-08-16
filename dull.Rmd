@@ -1,0 +1,83 @@
+---
+title: "Dull dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#libraries-----------------------------
+library(plotly)
+library(crosstalk)
+#functions-----------------------------------
+plotly_box <- function(tbbl, xvar, yvar, textvar, xlab, ylab){
+  #creates box-plot(s) with the raw data over-layed
+  plot_ly(data = tbbl, 
+        x = ~factor(get(xvar)), 
+        y = ~get(yvar), 
+        type = "box", 
+        boxpoints = FALSE, 
+        showlegend = FALSE,
+        hoverinfo="skip") %>%
+  add_trace(type = 'scatter', 
+            mode = 'markers', 
+            x = ~jitter(get(xvar), amount = .1), 
+            y = ~get(yvar),
+            text = ~get(textvar),
+            hoverinfo = 'text')%>%
+  layout(xaxis = list(title = xlab),
+         yaxis = list(title = ylab))
+}
+# create a shareddata object (which the user can filter and does not require shiny... it is dull.
+mtcars <- mtcars|>
+  tibble::rownames_to_column("car")|> 
+  crosstalk::SharedData$new() 
+```
+
+Inputs {.sidebar data-width=250}
+-----------------------------------------------
+
+```{r}
+crosstalk::filter_select(
+  "mtcars_cyl",
+  " Select # of cylinders",
+  mtcars,
+  ~cyl,
+  multiple = FALSE,
+  selected = "4"
+)
+crosstalk::filter_select(
+  "mtcars_am",
+  "Automatic or manual?",
+  mtcars,
+  ~am,
+  multiple = FALSE,
+  selected = "1"
+)
+```
+
+```{js}
+<!-- This javascript code removes the (All) option from the filter_selects... for each filter you add, need to do the same. -->
+function remove_all_option() {
+    document.getElementById("mtcars_am").getElementsByClassName("selectized")[0].selectize.removeOption("");
+    document.getElementById("mtcars_cyl").getElementsByClassName("selectized")[0].selectize.removeOption("");
+}
+window.onload = remove_all_option;
+```
+
+Column {data-width=700}
+---------------------------------------------
+### Plot
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+plotly_box(mtcars, 
+           "gear", 
+           "mpg", 
+           "car", 
+           'Number of Gears', 
+           'Miles Per Gallon (mpg)'
+           )
+```
+
+
